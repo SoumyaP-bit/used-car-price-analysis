@@ -1,4 +1,4 @@
-What Drives the Price of a Used Car?
+[What Drives the Price of a Used Car?
 Practical Application II
 ---
 Summary of Findings
@@ -28,3 +28,4 @@ scikit-learn (Pipeline, ColumnTransformer, GridSearchCV, Ridge, Lasso)
 ---
 Evaluation Metric
 RMSE (Root Mean Squared Error) was used as the primary metric because it is expressed in dollars (interpretable) and penalizes large prediction errors more heavily — important for a real-world pricing application.
+](https://github.com/SoumyaP-bit/used-car-price-analysis)
