@@ -1,79 +1,65 @@
-# What Drives the Price of a Used Car?
-### Practical Application II — CRISP-DM Framework
+# Car Insurance Claim Prediction
 
-## Business Problem
-A used car dealership wants to understand what factors drive the price of a used car. By identifying the key price drivers, the dealership can make better inventory decisions — stocking cars that consumers value and pricing them competitively.
+## Project Overview
+This project predicts whether a car insurance policyholder will file a claim based on demographic, behavioral, and vehicle-related features. The goal is to help insurance companies identify high-risk customers and price policies more accurately.
 
 ## Research Question
-**Which features most strongly predict the price of a used car, and what should a dealership prioritize when sourcing inventory?**
+**Can we predict whether a car insurance policyholder will file a claim using features such as driving experience, age, vehicle type, and credit score?**
 
 ## Dataset
-- **Source:** Kaggle used car listings dataset
-- **Size:** ~426,000 records
-- **Target Variable:** `price` (continuous, in USD)
-- **Key Features:** year, odometer, manufacturer, condition, fuel, drive, type, title_status
+- **Source:** [Car Insurance Data — Kaggle (sagnik1511)](https://www.kaggle.com/datasets/sagnik1511/car-insurance-data)
+- **Size:** ~10,000 rows
+- **Target Variable:** `OUTCOME` — 1 if a claim was filed, 0 if not
+- **Key Features:** AGE, GENDER, DRIVING_EXPERIENCE, VEHICLE_TYPE, CREDIT_SCORE, VEHICLE_OWNERSHIP, ANNUAL_MILEAGE
 
-> The dataset CSV is not included in this repository. Place `vehicles.csv` in a `data/` folder before running the notebook.
+> **Note:** The dataset CSV is not included in this repository due to Kaggle's terms of use. Download it from the link above and place it in the project root as `Car_Insurance_Claim.csv` before running the notebook.
 
 ## Repository Structure
+```
 ├── README.md
-├── prompt_II.ipynb     # Main analysis notebook
-## Models Compared
-- Linear Regression (baseline)
-- Ridge Regression (with GridSearchCV)
-- Lasso Regression (with GridSearchCV)
-
-## Evaluation Metric
-**RMSE (Root Mean Squared Error)** was used as the primary metric because:
-- It is expressed in dollars — directly interpretable for pricing decisions
-- It penalizes large errors more heavily than MAE, which matters when mispricings cost real money
-- **R²** is also reported to show how much price variance the model explains
-
-## Results
-
-### Model Performance
-
-| Model | RMSE | R² |
-|-------|------|----|
-| Linear Regression | $3,264 | 0.8171 |
-| Ridge Regression | $3,264 | 0.8171 |
-| Lasso Regression | $3,265 | 0.8170 |
-
-All three models perform similarly. **Ridge Regression is recommended** — it adds regularization to prevent overfitting without sacrificing accuracy, and its coefficients remain interpretable for business insight.
-
-### Top Price Drivers (from Ridge coefficients)
-1. **Vehicle Year** — strongest single predictor; newer cars command significantly higher prices
-2. **Odometer Reading** — higher mileage strongly depresses price
-3. **Condition** — "like new" and "excellent" fetch meaningful premiums over "good" or "fair"
-4. **Drive Type** — 4WD/AWD vehicles price consistently higher than FWD
-5. **Vehicle Type** — trucks and SUVs command the highest median prices
-6. **Fuel Type** — diesel and electric vehicles command a premium
-7. **Title Status** — salvage/rebuilt titles are heavily discounted vs clean title
-
-## Key Recommendations for the Dealership
-
-| Priority | Recommendation |
-|----------|----------------|
-| High | Stock **2015+ model year** vehicles — year is the top price driver |
-| High | Prioritize **low-mileage (<50K miles)** inventory |
-| High | Focus on **trucks and SUVs** — highest median prices |
-| Medium | Invest in **reconditioning** — improving condition grade adds significant value |
-| Medium | Source more **diesel and 4WD vehicles** for premium pricing |
-| Lower | Avoid **salvage/rebuilt title** inventory unless deeply discounted |
+├── capstone_eda.ipynb        # Main EDA and baseline model notebook
+└── Car_Insurance_Claim.csv   # Download from Kaggle (not committed)
+```
 
 ## Methodology
-1. **Data Understanding** — explored 426K listings, assessed missing values and distributions
-2. **Data Cleaning** — filtered price ($500–$150K), year (1980–2023), dropped high-cardinality/low-utility columns
-3. **Preprocessing** — median imputation + scaling for numerics; mode imputation + one-hot encoding for categoricals via sklearn Pipeline
-4. **Modeling** — Linear, Ridge, and Lasso regression; Ridge/Lasso tuned with GridSearchCV (5-fold CV)
-5. **Evaluation** — compared by RMSE and R²; Ridge coefficients interpreted for business recommendations
+1. **Data Cleaning** — handled missing values via median/mode imputation, removed duplicates
+2. **EDA** — visualized distributions, claim rates by category, correlations
+3. **Feature Engineering** — encoded categorical variables, created AGE_GROUP and EXP_RISK ordinal features
+4. **Baseline Modeling** — Logistic Regression with StandardScaler
+
+## Results
+### EDA Findings
+- Dataset has a **38.98% claim rate**, indicating a moderately imbalanced class distribution
+- Younger drivers (under 25) show higher claim rates than experienced drivers
+- Lower credit scores are associated with higher claim likelihood
+- Driving experience is one of the strongest predictors of claim behavior
+- Vehicle ownership status and annual mileage also show meaningful differences in claim rates
+
+### Baseline Model Performance (Logistic Regression)
+| Metric | Score |
+|--------|-------|
+| Accuracy | 0.7355 |
+| ROC-AUC | 0.7898 |
+| Precision (Claim class) | 0.68 |
+| Recall (Claim class) | 0.60 |
+
+**Evaluation Metric Rationale:** ROC-AUC was selected as the primary metric because:
+- It is robust to class imbalance
+- It evaluates model performance across all classification thresholds
+- In insurance, missing high-risk customers (false negatives) is costly — AUC captures this better than accuracy alone
 
 ## Next Steps
-- Test ensemble models (Random Forest, XGBoost) — likely to reduce RMSE significantly
-- Incorporate geographic pricing — state-level variation was meaningful
-- Build an internal pricing tool where staff input vehicle details and get a fair market estimate
-- Add richer data: previous owners, service history, accident records
+- Compare against ensemble models: Random Forest, XGBoost, LightGBM
+- Tune hyperparameters using GridSearchCV or RandomizedSearchCV
+- Address class imbalance using SMOTE or `class_weight='balanced'`
+- Add SHAP values for model explainability and feature importance validation
+- Evaluate precision-recall tradeoff for business use case (cost of false negatives vs false positives)
 
 ## Tools and Libraries
-- Python 3, pandas, numpy, matplotlib, seaborn
-- scikit-learn (Pipeline, ColumnTransformer, GridSearchCV, Ridge, Lasso)
+- Python 3.11
+- pandas, numpy
+- matplotlib, seaborn
+- scikit-learn
+
+## Link to Notebook
+[capstone_eda.ipynb](./capstone_eda.ipynb)
